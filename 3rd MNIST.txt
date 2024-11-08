@@ -1,0 +1,102 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+
+
+
+
+train_data_dir = 'mnist-jpg/train'
+test_data_dir = 'mnist-jpg/test'
+
+
+
+
+# Image data generator for training data
+
+image_data_generator = ImageDataGenerator(rescale=1.0/255)
+train_batch_size = 10000
+test_batch_size = 5000
+
+# Create data generators
+train_generator = train_datagen.flow_from_directory(
+    train_data_dir,
+    target_size=(28, 28),  # Resize images to 28x28
+    batch_size=train_batch_size,
+    class_mode='categorical', 
+    color_mode='grayscale',# Use 'categorical' for one-hot encoded labels
+    shuffle=True,
+)
+
+# Load test data without labels (class_mode=None)
+test_generator = test_datagen.flow_from_directory(
+    test_data_dir,
+    target_size=(28, 28),  # Resize images to 28x28
+    batch_size=test_batch_size,
+    class_mode='categorical',  # Use 'categorical' for one-hot encoded labels
+    color_mode='grayscale',
+    shuffle=True,
+)
+
+
+
+
+x_train, y_train = train_generator[0]
+x_test, y_test = test_generator[0]
+
+
+
+
+print(x_train.shape, y_train.shape)
+
+
+
+model = keras.Sequential([
+    keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Flatten(),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
+])
+
+model.summary()
+
+
+
+
+
+
+
+model.compile(optimizer='adam', loss='categorical_crossentropy',metrics=['accuracy'])
+model.fit(x_train, y_train, epochs=5, batch_size=64, validation_data=(x_test, y_test))
+
+
+
+
+
+
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print("Loss: ", test_loss)
+print("Accuracy: ", test_accuracy)
+
+
+
+
+
+
+n = 25
+plt.imshow(x_test[n])
+predicted_value = model.predict(x_test)
+print("Actual Number: ",np.argmax(y_test[n]))
+print("Predicted Number: ", np.argmax(predicted_value[n]))
+
+
+
+
+
+
+
+
+
+
